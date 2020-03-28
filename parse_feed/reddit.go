@@ -63,7 +63,8 @@ func getJeffListings(listings []Listing) []Listing {
 		if strings.Contains(lowerTitle, "amazon") {
 			//Trying to filter out the rainforest... not in the news often but this may show up
 			if !strings.Contains(lowerTitle, "burn") &&
-				!strings.Contains(lowerTitle, "rainforest") {
+				!strings.Contains(lowerTitle, "rainforest") &&
+				!strings.Contains(lowerTitle, "tribe") {
 				approvedListings = append(approvedListings, listing)
 			}
 		} else if strings.Contains(lowerTitle, "bezos") || strings.Contains(lowerTitle, "amzn") {
