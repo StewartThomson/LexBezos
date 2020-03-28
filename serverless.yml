@@ -1,0 +1,32 @@
+service: lexbezos
+frameworkVersion: '>=1.28.0 <2.0.0'
+plugins:
+  - serverless-dotenv-plugin
+
+provider:
+  name: aws
+  runtime: go1.x
+  region: us-east-2
+  vpc:
+    subnetIds:
+      - ${env:LB_SUBNET_1}
+      - ${env:LB_SUBNET_2}
+      - ${env:LB_SUBNET_3}
+    securityGroupIds:
+      - ${env:LB_SG_ID}
+
+package:
+  exclude:
+    - ./**
+  include:
+    - ./bin/**
+
+functions:
+  parse_feed:
+    handler: bin/parse_feed
+    events:
+      - schedule: rate(5 minutes)
+  send_tweet:
+    handler: bin/send_tweet
+    events:
+      - schedule: rate(1 hour)
