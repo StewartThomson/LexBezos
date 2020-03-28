@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+const TwitterCharLimit = 280
+
 func filterPostedListings(db *sql.DB, listings []Listing) (approvedListings []Listing, badTitleListings []Listing, err error) {
 	stmtURL, err := db.Prepare("SELECT id FROM LexBezos.articles WHERE url = ?")
 	if err != nil {
@@ -14,6 +16,7 @@ func filterPostedListings(db *sql.DB, listings []Listing) (approvedListings []Li
 	for _, listing := range listings {
 		var id int
 		err = stmtURL.QueryRow(listing.Url).Scan(&id)
+		logger.Debugf("On url %s, got: %d", listing.Url, id)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				err = nil
@@ -89,7 +92,7 @@ func PopulateTweetTable(db *sql.DB, listings []Listing) error {
 		return err
 	}
 	for _, listing := range listings {
-		content := listing.Title + " " + listing.Url
+		content := getContent(listing.Title, listing.Url)
 		_, err = stmtInsert.Exec(listing.DBID, content)
 		if err != nil {
 			return err
@@ -97,4 +100,14 @@ func PopulateTweetTable(db *sql.DB, listings []Listing) error {
 	}
 
 	return nil
+}
+
+func getContent(title, url string) string {
+	//Keep the content within twitter limit
+	ideal := title + " " + url
+	if len(ideal) <= TwitterCharLimit {
+		return ideal
+	}
+
+	return title[:TwitterCharLimit-len("... "+url)] + "... " + url
 }

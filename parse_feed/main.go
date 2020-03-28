@@ -70,6 +70,8 @@ func handler(request input) error {
 	if err != nil {
 		return err
 	}
+	logger.Debugf("Bad listings: %#v", badListings)
+	logger.Debugf("Good Listings: %#v", listings)
 	//We'll store the bad ones as well, so that we can keep their URLs for ez checking in the DB next time
 	err = storeListings(db, badListings)
 	if err != nil {
